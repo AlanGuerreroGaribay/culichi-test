@@ -1,0 +1,11 @@
+.layout{
+    display: flex;
+    flex-direction: column;
+    border: solid 1px;
+    border-color: black;
+}
+
+header {
+    height: 5vh;
+    background-color: lightblue;
+}
