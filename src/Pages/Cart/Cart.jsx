@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from "react";
-import './Cart.css';
+import React, { useEffect, useRef, useState } from "react";
+import "./Cart.css";
 import Product from "../../Components/Product/Product";
 
 function Cart() {
   const [search, setSearch] = useState("");
   const [id, setId] = useState("");
+  const store = useRef([]);
   const [products, setProducts] = useState([]);
 
   const getProds = () => {
     fetch("https://fakestoreapi.com/products")
       .then((res) => res.json())
-      .then((json) => setProducts(json));
+      .then((json) => {
+        store.current = json;
+        setProducts(json);
+      });
   };
 
   const descriptionShowHandler = (item) => {
@@ -25,48 +29,56 @@ function Cart() {
     }
   };
 
-  useEffect(() => {
-    if(search === ""){
-      getProds();
-    } 
-    if(search !== ""){
-      let filterSearch = products.filter(item => 
-        item.title.includes(search)
-      );
-      setProducts(filterSearch);
+  const getShitStore = () => {
+    if (search === "") {
+      return setProducts(store.current);
     }
-  }, [search]);
 
+    let filterSearch = store.current.filter((item) =>
+      item.title.includes(search)
+    );
+    return setProducts(filterSearch);
+  };
+
+  useEffect(() => {
+    getProds();
+  }, []);
+
+  // useEffect(() => {
+  //   if(search === ""){
+  //     getProds();
+  //   }
+  //
+  // }, []);
 
   return (
     <div className="cart">
       <div>
-      <h1>My Store</h1>
+        <h1>My Store</h1>
         <div className="cart-header">
-          <h2>Description of my store</h2>
+          <button onClick={getShitStore}>Search</button>
           <input
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-          }}
-        />
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+          />
         </div>
       </div>
       {products.map((item, i) => {
-          return (
-            <Product
-              key={i}
-              id={item.id}
-              itemId={id}
-              title={item.title}
-              description={item.description}
-              fn={() => {
-                descriptionShowHandler(item.id);
-              }}
-            />
-          );
-        }
-      )}
+        return (
+          <Product
+            key={i}
+            id={item.id}
+            itemId={id}
+            title={item.title}
+            description={item.description}
+            fn={() => {
+              descriptionShowHandler(item.id);
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
